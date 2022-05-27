@@ -3,33 +3,33 @@ version: '3.8'
 services:
   prometheus:
     image: prom/prometheus
+    ports:
+      - 9090:9090
+    command:
+      - '--storage.tsdb.path=/prometheus'
+      - '--config.file=/etc/prometheus/prometheus.yml'
     volumes:
       - /opt/docker/prometheus/data:/prometheus
       - /opt/docker/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
       - /opt/docker/prometheus/alertrules.yml:/etc/prometheus/alertrules.yml
       
-    command:
-      - '--config.file=/etc/prometheus/prometheus.yml'
-      - '--storage.tsdb.path=/prometheus'
-    ports:
-      - 9090:9090
-      
   alertmanager:
+    depends_on: prometheus
     image: prom/alertmanager
-    volumes:
-      - /opt/docker/prometheus/alertmanager.yml:/etc/alertmanager/alertmanager.yml
-    command:
-      - '--config.file=/etc/alertmanager/alertmanager.yml'
     ports:
       - 9093:9093
+    command:
+      - '--config.file=/etc/alertmanager/alertmanager.yml'
+    volumes:
+      - /opt/docker/prometheus/alertmanager.yml:/etc/alertmanager/alertmanager.yml
 
   influxdb2:
     image: influxdb:latest
     ports:
       - 8086:8086
     volumes:
-      - /opt/docker/influx/data:/var/lib/influxdb2
       - /opt/docker/influx/config:/etc/influxdb2
+      - /opt/docker/influx/data:/var/lib/influxdb2
 
   grafana:
     image: grafana/grafana-oss
@@ -37,5 +37,3 @@ services:
       - 3000:3000
     volumes:
       - /opt/docker/grafana:/var/lib/grafana
-    depends_on:
-      - influxdb2
