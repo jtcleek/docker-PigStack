@@ -28,7 +28,6 @@ services:
     ports:
       - 8086:8086
     volumes:
-      - /opt/docker/influx/config:/etc/influxdb2
       - /opt/docker/influx/data:/var/lib/influxdb2
 
   grafana:
